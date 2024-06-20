@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:productivity_gacha_app/water.dart';
+import 'package:provider/provider.dart';
 
 void main() {
   runApp(const MyApp());
@@ -11,35 +13,46 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'drink',
-      theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.blue),
-        useMaterial3: true,
-      ),
-      home: const WaterSettingsPage()//const WaterSettingsPage(),
-    );
+          title: 'drink',
+          theme: ThemeData(
+            colorScheme: ColorScheme.fromSeed(seedColor: Colors.blue),
+            useMaterial3: true,
+          ),
+          home: const CurrentPage() //const WaterSettingsPage(),
+          );
   }
 }
 
-class WaterSettingsPage extends StatelessWidget {
-  const WaterSettingsPage({super.key});
+class CurrentPage extends StatefulWidget {
+  const CurrentPage({super.key});
+
+  @override
+  State<CurrentPage> createState() => _CurrentPageState();
+}
+
+enum Page {
+  startPage,
+  waterSettingsPage,
+}
+
+class _CurrentPageState extends State<CurrentPage> {
   
+  var selectedIndex = Page.waterSettingsPage;
+
   @override
   Widget build(BuildContext context) {
-    return const Scaffold(
-      body: Center(
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Text("Periodically, how many minutes do you want to be reminded to drink water?"),
-            SizedBox(
-              width: 50,
-              child: TextField()
-            ),
-          ],
-        ),
-      ),
-    );
+    Widget page;
+    switch(selectedIndex) {
+      case Page.startPage:
+        page = const Placeholder();
+        break;
+      case Page.waterSettingsPage:
+        page = const WaterSettingsPage(); break;
+      default:
+        throw UnimplementedError("Invalid Page");
+
+    }
+    return page;
   }
-  
 }
+
