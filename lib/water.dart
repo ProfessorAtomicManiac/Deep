@@ -9,7 +9,7 @@ class WaterSettingsPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ChangeNotifierProvider(
-      create: (context) => _GlobalTimerState(),
+      create: (context) => _TimerState(),
       builder: (context, child) {
         return Scaffold(
           body: Center(
@@ -23,20 +23,20 @@ class WaterSettingsPage extends StatelessWidget {
                   children: [
                     TextButton(
                       onPressed:
-                          Provider.of<_GlobalTimerState>(context, listen: false)
+                          Provider.of<_TimerState>(context, listen: false)
                               .resetTimer,
                       child: const Text("Reset"),
                     ),
-                    (Provider.of<_GlobalTimerState>(context, listen: true)
+                    (Provider.of<_TimerState>(context, listen: true)
                             .isTimerRunning)
                         ? TextButton(
-                            onPressed: Provider.of<_GlobalTimerState>(context,
+                            onPressed: Provider.of<_TimerState>(context,
                                     listen: false)
                                 .stopTimer,
                             child: const Text("Stop"),
                           )
                         : TextButton(
-                            onPressed: Provider.of<_GlobalTimerState>(context,
+                            onPressed: Provider.of<_TimerState>(context,
                                     listen: false)
                                 .startTimer,
                             child: const Text("Start"),
@@ -58,10 +58,10 @@ class TimerWidget extends StatefulWidget {
   });
 
   @override
-  State<TimerWidget> createState() => _TimerWidgetState();
+  State<TimerWidget> createState() => _TimerTextfieldState();
 }
 
-class _TimerWidgetState extends State<TimerWidget> {
+class _TimerTextfieldState extends State<TimerWidget> {
   final TextEditingController _controller = TextEditingController();
 
   @override
@@ -71,7 +71,7 @@ class _TimerWidgetState extends State<TimerWidget> {
   }
 
   void _handleInput() {
-    var timerState = Provider.of<_GlobalTimerState>(context, listen: false);
+    var timerState = Provider.of<_TimerState>(context, listen: false);
     if (timerState.isTimerRunning) return;
     print("\n");
     print("Editing timer");
@@ -96,11 +96,11 @@ class _TimerWidgetState extends State<TimerWidget> {
 
   void _handleSubmit(BuildContext context) {
     String value = _controller.text;
-    var timerState = Provider.of<_GlobalTimerState>(context, listen: false);
+    var timerState = Provider.of<_TimerState>(context, listen: false);
     if (timerState.isTimerRunning) return;
     // includes the ":"
     if (value.length == 5) {
-      var timerState = Provider.of<_GlobalTimerState>(context, listen: false);
+      var timerState = Provider.of<_TimerState>(context, listen: false);
       timerState.mins = int.tryParse(value.substring(0, 2))!;
       timerState.secs = int.tryParse(value.substring(3, 5))!;
     } else {
@@ -118,7 +118,7 @@ class _TimerWidgetState extends State<TimerWidget> {
 
   @override
   Widget build(BuildContext context) {
-    var timerState = context.watch<_GlobalTimerState>();
+    var timerState = context.watch<_TimerState>();
     _controller.text =
         "${timerState.mins.toString().padLeft(2, '0')}:${timerState.secs.toString().padLeft(2, '0')}";
     return SizedBox(
@@ -136,10 +136,9 @@ class _TimerWidgetState extends State<TimerWidget> {
   }
 }
 
-class _GlobalTimerState extends ChangeNotifier {
+class _TimerState extends ChangeNotifier {
   int _mins = 0, _secs = 0;
   int _currMins = 0, _currSecs = 0;
-  bool _isTimerRunning = false;
   bool get isTimerRunning =>
       (_updateTimer == null) ? false : _updateTimer!.isActive;
   int get mins => _currMins;

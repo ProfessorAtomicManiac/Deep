@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:productivity_gacha_app/water.dart';
-import 'package:provider/provider.dart';
 
 void main() {
   runApp(const MyApp());
