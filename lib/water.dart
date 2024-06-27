@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:audioplayers/audioplayers.dart';
+import 'package:google_fonts/google_fonts.dart';
 
 class WaterSettingsPage extends StatelessWidget {
   const WaterSettingsPage({super.key});
@@ -37,9 +38,9 @@ class WaterSettingsPage extends StatelessWidget {
                             child: const Text("Stop"),
                           )
                         : TextButton(
-                            onPressed: Provider.of<_TimerState>(context,
+                            onPressed: () => Provider.of<_TimerState>(context,
                                     listen: false)
-                                .startTimer,
+                                .startTimer(context),
                             child: const Text("Start"),
                           ),
                   ],
@@ -74,8 +75,6 @@ class _TimerTextfieldState extends State<TimerWidget> {
   void _handleInput() {
     var timerState = Provider.of<_TimerState>(context, listen: false);
     if (timerState.isTimerRunning) return;
-    print("\n");
-    print("Editing timer");
     final RegExp nonNumbers = RegExp(r"([^\d])");
     final RegExp sixToNine = RegExp(r"([6-9])");
     String text = _controller.text.replaceAll(nonNumbers, "");
@@ -159,10 +158,19 @@ class _TimerState extends ChangeNotifier {
 
   Timer? _updateTimer;
 
-  void startTimer() {
-    _updateTimer = Timer.periodic(const Duration(seconds: 1), (var timer) {
+  void startTimer(BuildContext context) async {
+    _currMins = _mins;
+    _currSecs = _secs;
+    _updateTimer = Timer.periodic(const Duration(seconds: 1), (var timer) async {
       if (_currMins == 0 && _currSecs == 0) {
         stopTimer();
+        final player = AudioPlayer();
+        player.setVolume(1);
+        await player.play(AssetSource('sounds/vine-boom-spam.mp3'));
+        // ignore: use_build_context_synchronously
+        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+          content: Text("go drink water"),
+        ));
         return;
       }
       if (_currSecs == 0) {
@@ -171,17 +179,14 @@ class _TimerState extends ChangeNotifier {
       } else {
         _currSecs--;
       }
-      print("$_currMins:$_currSecs");
 
       notifyListeners();
     });
-    print("Start Timer $_currMins:$_currSecs");
 
     notifyListeners();
   }
 
   void resetTimer() {
-    print("reset timer");
     stopTimer();
     _currMins = _mins;
     _currSecs = _secs;
@@ -189,8 +194,6 @@ class _TimerState extends ChangeNotifier {
   }
 
   void stopTimer() {
-    print("stop timer");
-
     if (_updateTimer != null) {
       _updateTimer!.cancel();
     }
