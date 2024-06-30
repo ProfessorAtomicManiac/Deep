@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:productivity_gacha_app/nav_drawer.dart';
 import 'package:productivity_gacha_app/water.dart';
 
 void main() {
@@ -29,29 +30,23 @@ class CurrentPage extends StatefulWidget {
   State<CurrentPage> createState() => _CurrentPageState();
 }
 
-enum Page {
-  startPage,
-  waterSettingsPage,
-}
-
 class _CurrentPageState extends State<CurrentPage> {
   
-  var selectedIndex = Page.waterSettingsPage;
+  final pages = [
+    const WaterSettingsPage(),
+  ];
+  var selectedIndex = 0;
 
   @override
   Widget build(BuildContext context) {
-    Widget page;
-    switch(selectedIndex) {
-      case Page.startPage:
-        page = const Placeholder();
-        break;
-      case Page.waterSettingsPage:
-        page = const WaterSettingsPage(); break;
-      default:
-        throw UnimplementedError("Invalid Page");
-
-    }
-    return page;
+    Widget page = pages[selectedIndex];
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text("My App"),
+      ),
+      body: page,
+      drawer: NavDrawer(),
+    );
   }
 }
 
