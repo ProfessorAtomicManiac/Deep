@@ -100,6 +100,11 @@ class _SearchBarState extends State<SearchBar> {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final textStyle = theme.textTheme.labelLarge!.copyWith(
+      color: theme.colorScheme.onSurface,
+      fontSize: Constants.DEFAULT_ICON_SIZE - 5,
+    );
     return Container(
       padding: const EdgeInsets.all(5),
       decoration: BoxDecoration(
@@ -123,7 +128,9 @@ class _SearchBarState extends State<SearchBar> {
                 border: InputBorder.none,
               ),
               controller: _controller,
-              //style: TextStyle(fontSize: 24),
+              style: textStyle,
+              cursorColor: theme.colorScheme.onSurface,
+              
             ),
           ),
           textfieldHasText
