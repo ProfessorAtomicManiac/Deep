@@ -1,13 +1,81 @@
 import 'package:flutter/material.dart';
+import 'package:productivity_gacha_app/constants.dart';
 
-class WritingPage extends StatefulWidget {
+class WritingPage extends StatelessWidget {
   const WritingPage({super.key});
 
   @override
-  State<WritingPage> createState() => _WritingPageState();
+  Widget build(BuildContext context) {
+    return const Column(
+      children: [
+        // search bar
+        SearchBar(),
+        SizedBox(height: 20),
+        Header(),
+      ],
+    );
+  }
 }
 
-class _WritingPageState extends State<WritingPage> {
+class Header extends StatefulWidget {
+  const Header({
+    super.key,
+  });
+
+  @override
+  State<Header> createState() => _HeaderState();
+}
+
+class _HeaderState extends State<Header> {
+  bool sortLatest = true;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final headerTextStyle = theme.textTheme.labelLarge!.copyWith(
+      color: theme.colorScheme.onSurface,
+    );
+    return Container(
+      decoration: const BoxDecoration(
+        border: Border(
+          bottom: BorderSide(),
+        ),
+      ),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Text("Name", style: headerTextStyle),
+          const Spacer(flex: 2),
+          Text("Last Modified", style: headerTextStyle),
+          const SizedBox(width: 5),
+          IconButton(
+            icon: sortLatest
+                ? const Icon(Icons.arrow_downward)
+                : const Icon(Icons.arrow_upward),
+            iconSize: Constants.LABEL_LARGE_FONT_SIZE,
+            onPressed: () {
+              setState(() => sortLatest = !sortLatest);
+            },
+          ),
+          const Spacer(flex: 1),
+          IconButton(
+            icon: const Icon(Icons.more_vert),
+            onPressed: () {},
+          )
+        ],
+      ),
+    );
+  }
+}
+
+class SearchBar extends StatefulWidget with Constants {
+  const SearchBar({super.key});
+
+  @override
+  State<SearchBar> createState() => _SearchBarState();
+}
+
+class _SearchBarState extends State<SearchBar> {
   final TextEditingController _controller = TextEditingController();
   bool textfieldHasText = false;
   late FocusNode focusNode;
@@ -32,50 +100,47 @@ class _WritingPageState extends State<WritingPage> {
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      children: [
-        // search bar
-
-        Container(
-          padding: const EdgeInsets.all(5),
-          decoration: BoxDecoration(
-            border: Border.all(),
-            borderRadius: const BorderRadius.all(Radius.circular(25)),
+    return Container(
+      padding: const EdgeInsets.all(5),
+      decoration: BoxDecoration(
+        border: Border.all(),
+        borderRadius: Constants.curveBorderToIcon(),
+      ),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          IconButton(
+            padding: Constants.alignIconToText(),
+            icon: const Icon(Icons.search),
+            onPressed: () {},
           ),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              IconButton(
-                icon: const Icon(Icons.search),
-                onPressed: () {},
+          Expanded(
+            child: TextField(
+              focusNode: focusNode,
+              decoration: const InputDecoration.collapsed(
+                hintText: "Search",
+                border: InputBorder.none,
               ),
-              Expanded(
-                child: TextField(
-                  focusNode: focusNode,
-                  textAlignVertical: TextAlignVertical.center,
-                  decoration: const InputDecoration.collapsed(
-                    hintText: "Search",
-                    border: InputBorder.none,
-                  ),
-                  controller: _controller,
-                  //style: TextStyle(fontSize: 24),
-                ),
-              ),
-              textfieldHasText ? IconButton(icon: const Icon(Icons.cancel), onPressed: () {
-                setState(() => _controller.text = "");
-                focusNode.requestFocus();
-              }) : const SizedBox(),
-              IconButton(
-                icon: const Icon(Icons.sort),
-                onPressed: () {},
-              )
-            ],
+              controller: _controller,
+              //style: TextStyle(fontSize: 24),
+            ),
           ),
-        ),
-
-        // header
-      ],
+          textfieldHasText
+              ? IconButton(
+                  icon: const Icon(Icons.cancel),
+                  onPressed: () {
+                    setState(() => _controller.text = "");
+                    focusNode.requestFocus();
+                  })
+              : const SizedBox(),
+          IconButton(
+            padding: Constants.alignIconToText(),
+            icon: const Icon(Icons.sort),
+            onPressed: () {},
+          )
+        ],
+      ),
     );
   }
 }

@@ -43,13 +43,11 @@ class _CurrentPageState extends State<CurrentPage> {
     var title = pages[selectedIndex].$3;
     Widget page = pages[selectedIndex].$4;
     final theme = Theme.of(context);
-    final titleTextStyle = theme.textTheme.displayMedium!.copyWith(
+      final titleTextStyle = theme.textTheme.titleLarge!.copyWith(
       color: theme.colorScheme.onSurface,
-      fontSize: 30,
     );
-    final navTextStyle = theme.textTheme.displayMedium!.copyWith(
+    final navTextStyle = theme.textTheme.labelLarge!.copyWith(
       color: theme.colorScheme.onSurfaceVariant,
-      fontSize: 15,
     );
 
     return LayoutBuilder(builder: (context, constraints) {
