@@ -32,8 +32,8 @@ class CurrentPage extends StatefulWidget {
 
 class _CurrentPageState extends State<CurrentPage> {
   final pages = const [
-    (Icons.home_outlined, Icons.home, "Dashboard", Placeholder()),
-    (Icons.create_outlined, Icons.create, "Writing", WritingPage()),
+    (Icons.home_outlined, Icons.home, "Dashboard", Placeholder(),),
+    (Icons.create_outlined, Icons.create, "Writing", WritingPage(), ),
     (Icons.water_drop_outlined, Icons.water_drop, "Water", WaterSettingsPage()),
   ];
   var selectedIndex = 1;
@@ -123,7 +123,10 @@ class _CurrentPageState extends State<CurrentPage> {
             ),
           ],
         ),
+        //floatingActionButton: WritingFloatingActionButton(),
       );
     });
   }
 }
+
+

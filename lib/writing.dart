@@ -1,5 +1,11 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:productivity_gacha_app/constants.dart';
+import 'package:path_provider/path_provider.dart';
+import 'dart:convert';
+import 'package:deep_pick/deep_pick.dart';
+import 'package:provider/provider.dart';
 
 class WritingPage extends StatelessWidget {
   const WritingPage({super.key});
@@ -12,6 +18,7 @@ class WritingPage extends StatelessWidget {
         SearchBar(),
         SizedBox(height: 20),
         Header(),
+        Drive(),
       ],
     );
   }
@@ -42,26 +49,42 @@ class _HeaderState extends State<Header> {
         ),
       ),
       child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          Text("Name", style: headerTextStyle),
-          const Spacer(flex: 2),
-          Text("Last Modified", style: headerTextStyle),
-          const SizedBox(width: 5),
-          IconButton(
-            icon: sortLatest
-                ? const Icon(Icons.arrow_downward)
-                : const Icon(Icons.arrow_upward),
-            iconSize: Constants.LABEL_LARGE_FONT_SIZE,
-            onPressed: () {
-              setState(() => sortLatest = !sortLatest);
-            },
+          Expanded(
+            flex: 2,
+            child: Row(
+              children: [
+                Text("Name", style: headerTextStyle),
+              ],
+            ),
           ),
-          const Spacer(flex: 1),
-          IconButton(
-            icon: const Icon(Icons.more_vert),
-            onPressed: () {},
-          )
+          Expanded(
+            flex: 1,
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Row(
+                  children: [
+                    Text("Last Modified", style: headerTextStyle),
+                    const SizedBox(width: 5),
+                    IconButton(
+                      icon: sortLatest
+                          ? const Icon(Icons.arrow_downward)
+                          : const Icon(Icons.arrow_upward),
+                      iconSize: Constants.LABEL_LARGE_FONT_SIZE,
+                      onPressed: () {
+                        setState(() => sortLatest = !sortLatest);
+                      },
+                    ),
+                  ],
+                ),
+                IconButton(
+                  icon: const Icon(Icons.more_vert),
+                  onPressed: () {},
+                )
+              ],
+            ),
+          ),
         ],
       ),
     );
@@ -130,7 +153,6 @@ class _SearchBarState extends State<SearchBar> {
               controller: _controller,
               style: textStyle,
               cursorColor: theme.colorScheme.onSurface,
-              
             ),
           ),
           textfieldHasText
@@ -151,3 +173,254 @@ class _SearchBarState extends State<SearchBar> {
     );
   }
 }
+
+/*
+{
+  "folders": [
+    {
+      "name": "favorites",
+      "last_modified": "01-20-24",
+      "folders": [],
+      "files": []
+    }
+  ],
+  "files": [
+    {
+      "name": "djks",
+      "last_modified": "02-20-23",
+      "text": "kdjsl dj sjf i3w dsjf"
+    }
+  ]
+}
+*/
+
+class Storage with ChangeNotifier {
+  Map<String, dynamic>? _drive;
+  final List<String> _currentPath = [];
+
+  Storage() {
+    _loadFile();
+  }
+
+  void _loadFile() async {
+    try {
+      final directory = await getApplicationDocumentsDirectory();
+      final path = directory.path;
+      final file = File('$path\\Deep\\writing.json');
+
+      if (!file.existsSync()) {
+        await file.create(recursive: true);
+        var sink = file.openWrite();
+        sink.write("""{
+          "folders": [],
+          "files": []
+        }""");
+        await sink.flush();
+        await sink.close();
+      }
+      var string = await file.readAsString();
+      print(string);
+      _drive = jsonDecode(await file.readAsString());
+      notifyListeners();
+    } catch (e) {
+      rethrow;
+    }
+  }
+
+  bool isLoaded() {
+    return _drive != null;
+  }
+
+  void addFolder(String folderName) {
+    var currDir = getCurrentFolders();
+    Map<String, dynamic> map = {
+      "name": folderName,
+      "folders": [],
+      "files": [],
+      "last_modified": "${DateTime.now().month}/${DateTime.now().day}",
+    };
+    currDir.add(map);
+    notifyListeners();
+    saveFile();
+  }
+
+  void addFile(String fileName) {
+    var currDir = getCurrentFiles();
+    Map<String, dynamic> map = {
+      "name": fileName,
+      "last_modified": "${DateTime.now().month}//${DateTime.now().day}",
+      "prompt": "",
+      "text": "",
+    };
+    currDir.add(map);
+    notifyListeners();
+    saveFile();
+  }
+
+  void enterFolder(String folder) {
+    _currentPath.add('folder');
+    _currentPath.add(folder);
+    notifyListeners();
+  }
+
+  void exitCurrentFolder() {
+    if (_currentPath.length >= 2) {
+      _currentPath.removeLast();
+      _currentPath.removeLast();
+    } else {
+      throw Exception("Path is at root");
+    }
+    notifyListeners();
+  }
+
+  List<dynamic> getCurrentFolders() {
+    if (_currentPath.isEmpty) {
+      return _drive?['folders'];
+    } else {
+      return pick(_drive, _currentPath).asMapOrThrow()['folders'];
+    }
+  }
+
+  List<dynamic> getCurrentFiles() {
+    if (_currentPath.isEmpty) {
+      return _drive?['files'];
+    } else {
+      return pick(_drive, _currentPath).asMapOrThrow()['files'];
+    }
+  }
+
+  void saveFile() async {
+    final directory = await getApplicationDocumentsDirectory();
+    final path = directory.path;
+    final file = File('$path\\Deep\\writing.json');
+    var sink = file
+        .openWrite(); // for appending at the end of file, pass parameter (mode: FileMode.append) to openWrite()
+    sink.write(json.encode(_drive));
+    await sink.flush();
+    await sink.close();
+  }
+}
+
+class Drive extends StatefulWidget {
+  const Drive({super.key});
+
+  @override
+  State<Drive> createState() => _DriveState();
+}
+
+class _DriveState extends State<Drive> {
+  var storage = Storage();
+
+  @override
+  void dispose() {
+    storage.saveFile();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return ChangeNotifierProvider(
+      create: (context) => storage,
+      child: Consumer<Storage>(
+        builder: (context, cart, child) {
+          return storage.isLoaded()
+              ? Expanded(
+                  child: ListView(children: [
+                    ...[
+                      for (var folder in storage.getCurrentFolders())
+                        Row(children: [
+                          Expanded(
+                            flex: 2,
+                            child: Row(
+                              children: [
+                                const Icon(Icons.folder),
+                                const SizedBox(width: 5),
+                                Text(folder["name"]),
+                              ],
+                            ),
+                          ),
+                          Expanded(
+                            flex: 1,
+                            child: Row(
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
+                                children: [
+                                  Text(folder["last_modified"]),
+                                  IconButton(
+                                    icon: const Icon(Icons.more_vert),
+                                    onPressed: () {},
+                                  ),
+                                ]),
+                          ),
+                        ])
+                    ],
+                    ...[
+                      for (var file in storage.getCurrentFiles())
+                        Row(children: [
+                          Expanded(
+                            flex: 2,
+                            child: Row(
+                              children: [
+                                const Icon(Icons.file_present),
+                                const SizedBox(width: 5),
+                                Text(file["name"]),
+                              ],
+                            ),
+                          ),
+                          Expanded(
+                            flex: 1,
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                Text(file["last_modified"]),
+                                IconButton(
+                                  icon: const Icon(Icons.more_vert),
+                                  onPressed: () {},
+                                ),
+                              ],
+                            ),
+                          ),
+                        ])
+                    ],
+                    TextButton(
+                        child: Text("Add Folder"),
+                        onPressed: () =>
+                            setState(() => storage.addFolder("Folder"))),
+                    TextButton(
+                        child: Text("Add File"),
+                        onPressed: () =>
+                            setState(() => storage.addFile("File"))),
+                  ]),
+                )
+              : const Center(child: Padding(
+                padding: EdgeInsets.all(8.0),
+                child: Text("Loading"),
+              ));
+        },
+      ),
+    );
+
+    // return ListView.builder(
+    //   itemCount: ,
+    //   itemBuilder: (context, index) {
+    //     _localFile
+    //     return Row(
+    //       children: [
+
+    //       ],
+    //       )
+    //   }
+    // );
+  }
+}
+
+// class WritingFloatingActionButton extends StatelessWidget {
+//   const WritingFloatingActionButton({
+//     super.key,
+//   });
+
+//   @override
+//   Widget build(BuildContext context) {
+//     return FloatingActionButton(onPressed: onPressed);
+//   }
+// }
