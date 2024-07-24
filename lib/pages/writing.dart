@@ -78,9 +78,18 @@ class _HeaderState extends State<Header> {
                     ),
                   ],
                 ),
-                IconButton(
-                  icon: const Icon(Icons.more_vert),
-                  onPressed: () {},
+                SubmenuButton(
+                  //menuStyle: MenuStyle(alignment: Alignment(-1, 1)),
+                  child: IconButton(
+                    icon: const Icon(Icons.more_vert),
+                    onPressed: () {},
+                  ),
+                  menuChildren: [
+                    MenuItemButton(child: Text("Sort Alphabetically")),
+                    MenuItemButton(child: Text("Sort by Date")),
+                    MenuItemButton(child: Text("Put Folders on Top")),
+                    MenuItemButton(child: Text("Put Folders on Bottom")),
+                  ],
                 )
               ],
             ),
@@ -392,10 +401,11 @@ class _DriveState extends State<Drive> {
                             setState(() => storage.addFile("File"))),
                   ]),
                 )
-              : const Center(child: Padding(
-                padding: EdgeInsets.all(8.0),
-                child: Text("Loading"),
-              ));
+              : const Center(
+                  child: Padding(
+                  padding: EdgeInsets.all(8.0),
+                  child: Text("Loading"),
+                ));
         },
       ),
     );
