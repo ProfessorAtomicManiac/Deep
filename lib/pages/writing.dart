@@ -5,6 +5,7 @@ import 'package:productivity_gacha_app/constants.dart';
 import 'package:path_provider/path_provider.dart';
 import 'dart:convert';
 import 'package:deep_pick/deep_pick.dart';
+import 'package:productivity_gacha_app/routes/routes.dart';
 import 'package:provider/provider.dart';
 
 class WritingPage extends StatelessWidget {
@@ -35,6 +36,7 @@ class Header extends StatefulWidget {
 
 class _HeaderState extends State<Header> {
   bool sortLatest = true;
+  String? _selectedSort = "Sort Alphabetically";
 
   @override
   Widget build(BuildContext context) {
@@ -42,58 +44,64 @@ class _HeaderState extends State<Header> {
     final headerTextStyle = theme.textTheme.labelLarge!.copyWith(
       color: theme.colorScheme.onSurface,
     );
+
     return Container(
-      decoration: const BoxDecoration(
-        border: Border(
-          bottom: BorderSide(),
-        ),
-      ),
+      // decoration: const BoxDecoration(
+      //   border: Border(
+      //     bottom: BorderSide(),
+      //   ),
+      // ),
       child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          Expanded(
-            flex: 2,
-            child: Row(
-              children: [
-                Text("Name", style: headerTextStyle),
-              ],
-            ),
-          ),
-          Expanded(
-            flex: 1,
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Row(
-                  children: [
-                    Text("Last Modified", style: headerTextStyle),
-                    const SizedBox(width: 5),
-                    IconButton(
-                      icon: sortLatest
-                          ? const Icon(Icons.arrow_downward)
-                          : const Icon(Icons.arrow_upward),
-                      iconSize: Constants.LABEL_LARGE_FONT_SIZE,
-                      onPressed: () {
-                        setState(() => sortLatest = !sortLatest);
-                      },
-                    ),
-                  ],
+          Text("Folders", style: headerTextStyle),
+          Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              IconButton(
+                icon: sortLatest
+                    ? const Icon(Icons.arrow_downward)
+                    : const Icon(Icons.arrow_upward),
+                iconSize: Constants.LABEL_LARGE_FONT_SIZE,
+                onPressed: () {
+                  setState(() => sortLatest = !sortLatest);
+                },
+              ),
+              const SizedBox(width: 5),
+              DropdownMenu(
+                textStyle: headerTextStyle,
+                inputDecorationTheme: InputDecorationTheme(
+                  border: InputBorder.none,
                 ),
-                SubmenuButton(
-                  //menuStyle: MenuStyle(alignment: Alignment(-1, 1)),
-                  child: IconButton(
-                    icon: const Icon(Icons.more_vert),
-                    onPressed: () {},
+                width: 150,
+                dropdownMenuEntries: [
+                  DropdownMenuEntry(
+                    value: "Sort Alphabetically",
+                    label: "Sort Alphabetically",
                   ),
-                  menuChildren: [
-                    MenuItemButton(child: Text("Sort Alphabetically")),
-                    MenuItemButton(child: Text("Sort by Date")),
-                    MenuItemButton(child: Text("Put Folders on Top")),
-                    MenuItemButton(child: Text("Put Folders on Bottom")),
-                  ],
-                )
-              ],
-            ),
+                  DropdownMenuEntry(
+                    value: "Sort by Date",
+                    label: "Sort by Date",
+                  ),
+                ],
+              ),
+
+              //Text("Last Modified", style: headerTextStyle),
+            ],
           ),
+          // SubmenuButton(
+          //   //menuStyle: MenuStyle(alignment: Alignment(-1, 1)),
+          //   child: IconButton(
+          //     icon: const Icon(Icons.more_vert),
+          //     onPressed: () {},
+          //   ),
+          //   menuChildren: [
+          //     MenuItemButton(child: Text("Sort Alphabetically")),
+          //     MenuItemButton(child: Text("Sort by Date")),
+          //     MenuItemButton(child: Text("Put Folders on Top")),
+          //     MenuItemButton(child: Text("Put Folders on Bottom")),
+          //   ],
+          // )
         ],
       ),
     );
@@ -424,13 +432,15 @@ class _DriveState extends State<Drive> {
   }
 }
 
-// class WritingFloatingActionButton extends StatelessWidget {
-//   const WritingFloatingActionButton({
-//     super.key,
-//   });
+class WritingFloatingActionButton extends StatelessWidget {
+  const WritingFloatingActionButton({
+    super.key,
+  });
 
-//   @override
-//   Widget build(BuildContext context) {
-//     return FloatingActionButton(onPressed: onPressed);
-//   }
-// }
+  @override
+  Widget build(BuildContext context) {
+    return FloatingActionButton(
+        onPressed: () => Navigator.of(context)
+            .pushNamed(RouteManager.writingCreatePage.route));
+  }
+}

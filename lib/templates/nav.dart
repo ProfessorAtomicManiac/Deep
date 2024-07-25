@@ -15,19 +15,19 @@ class _NavState extends State<Nav> {
       "unselected_icon": Icons.home_outlined,
       "selected_icon": Icons.home,
       "name": "Dashboard",
-      "path": RouteManager.homePage["route"] as String,
+      "path": RouteManager.homePage.route,
     },
     {
       "unselected_icon": Icons.create_outlined,
       "selected_icon": Icons.create,
       "name": "Writing",
-      "path": RouteManager.writingPage["route"] as String,
+      "path": RouteManager.writingPage.route,
     },
     {
       "unselected_icon": Icons.water_drop_outlined,
       "selected_icon": Icons.water_drop,
       "name": "Water",
-      "path": RouteManager.waterPage["route"] as String,
+      "path": RouteManager.waterPage.route,
     },
   ];
 

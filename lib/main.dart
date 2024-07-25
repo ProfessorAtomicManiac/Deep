@@ -18,7 +18,7 @@ class MyApp extends StatelessWidget {
           colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepOrange),
           useMaterial3: true,
         ),
-        initialRoute: RouteManager.homePage["route"] as String,
+        initialRoute: RouteManager.homePage.route,
         onGenerateRoute: RouteManager.generateRoute //const WaterSettingsPage(),
         );
   }
